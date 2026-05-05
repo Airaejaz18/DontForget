@@ -1,17 +1,20 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import COLORS from "../src/constants/colors";
 import { updateUserName } from "../src/database/db";
+
+const { width } = Dimensions.get("window");
 
 export default function OnboardingScreen() {
   const [name, setName] = useState("");
@@ -38,18 +41,20 @@ export default function OnboardingScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         {/* Background blobs */}
         <View style={styles.blob1} />
         <View style={styles.blob2} />
+        <View style={styles.blob3} />
 
-        {/* Mom Character */}
+        {/* Mom Character Circle */}
         <View style={styles.momContainer}>
           <Text style={styles.momEmoji}>👩‍👧</Text>
         </View>
 
-        {/* Speech bubble */}
-        <View style={styles.bubbleContainer}>
+        {/* Speech Bubble */}
+        <View style={styles.bubbleWrapper}>
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>
               Hi! I'm your digital mom 💕{"\n"}
@@ -63,11 +68,11 @@ export default function OnboardingScreen() {
         <Text style={styles.title}>Hello there! 👋</Text>
         <Text style={styles.subtitle}>
           I'll make sure you <Text style={styles.highlight}>never forget</Text>{" "}
-          anything important!
+          anything important again!
         </Text>
 
-        {/* Name input */}
-        <View style={styles.inputContainer}>
+        {/* Name Input */}
+        <View style={styles.inputWrapper}>
           <Text style={styles.inputLabel}>YOUR NAME</Text>
           <TextInput
             style={[styles.input, error ? styles.inputError : null]}
@@ -85,7 +90,7 @@ export default function OnboardingScreen() {
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
 
-        {/* Button */}
+        {/* Get Started Button */}
         <TouchableOpacity
           style={styles.button}
           onPress={handleGetStarted}
@@ -93,6 +98,22 @@ export default function OnboardingScreen() {
         >
           <Text style={styles.buttonText}>Let's Go! 🚀</Text>
         </TouchableOpacity>
+
+        {/* Features row */}
+        <View style={styles.featuresRow}>
+          {[
+            { icon: "🎒", label: "Pack Smart" },
+            { icon: "🔔", label: "Get Reminded" },
+            { icon: "✅", label: "Never Forget" },
+          ].map((f) => (
+            <View key={f.label} style={styles.featureItem}>
+              <View style={styles.featureIcon}>
+                <Text style={styles.featureEmoji}>{f.icon}</Text>
+              </View>
+              <Text style={styles.featureLabel}>{f.label}</Text>
+            </View>
+          ))}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -108,7 +129,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 28,
-    paddingTop: 60,
+    paddingTop: 70,
+    paddingBottom: 40,
   },
   blob1: {
     position: "absolute",
@@ -128,10 +150,19 @@ const styles = StyleSheet.create({
     bottom: 60,
     left: -40,
   },
+  blob3: {
+    position: "absolute",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.mintLight,
+    top: 200,
+    left: 20,
+  },
   momContainer: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     backgroundColor: COLORS.primaryLight,
     alignItems: "center",
     justifyContent: "center",
@@ -143,17 +174,17 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   momEmoji: {
-    fontSize: 80,
+    fontSize: 72,
   },
-  bubbleContainer: {
+  bubbleWrapper: {
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   bubble: {
     backgroundColor: COLORS.white,
     borderRadius: 20,
     padding: 14,
-    maxWidth: 260,
+    maxWidth: width * 0.75,
     borderWidth: 2,
     borderColor: COLORS.primary,
     shadowColor: COLORS.primary,
@@ -192,16 +223,16 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     textAlign: "center",
     lineHeight: 22,
-    marginBottom: 32,
+    marginBottom: 28,
     fontWeight: "600",
   },
   highlight: {
     color: COLORS.primary,
     fontWeight: "800",
   },
-  inputContainer: {
+  inputWrapper: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   inputLabel: {
     fontSize: 11,
@@ -209,6 +240,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     letterSpacing: 0.8,
     marginBottom: 8,
+    marginLeft: 4,
   },
   input: {
     width: "100%",
@@ -237,6 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     backgroundColor: COLORS.primary,
     alignItems: "center",
+    marginBottom: 32,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
@@ -247,5 +280,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
     color: COLORS.white,
+  },
+  featuresRow: {
+    flexDirection: "row",
+    gap: 16,
+    justifyContent: "center",
+  },
+  featureItem: {
+    alignItems: "center",
+    gap: 6,
+  },
+  featureIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureEmoji: {
+    fontSize: 24,
+  },
+  featureLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: COLORS.textLight,
   },
 });
