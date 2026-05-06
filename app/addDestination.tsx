@@ -18,6 +18,10 @@ import {
   EMOJIS,
 } from "../src/constants/data";
 import { addDestination } from "../src/database/db";
+import {
+  scheduleDailyNotification,
+  scheduleEventNotification,
+} from "../src/utils/notifications";
 
 export default function AddDestinationScreen() {
   const [name, setName] = useState("");
@@ -35,12 +39,13 @@ export default function AddDestinationScreen() {
     return `${h}:${m}`;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       setError("Please enter a destination name!");
       return;
     }
-    addDestination(
+    //save to database
+    const id = addDestination(
       name.trim(),
       "emoji",
       selectedEmoji,
@@ -49,6 +54,26 @@ export default function AddDestinationScreen() {
       reminderType,
       formatTime(reminderTime),
     );
+    // Schedule notification
+    const hour = reminderTime.getHours();
+    const minute = reminderTime.getMinutes();
+
+    if (reminderType === "daily") {
+      await scheduleDailyNotification(
+        name.trim(),
+        selectedEmoji,
+        hour,
+        minute,
+        Number(id),
+      );
+    } else {
+      await scheduleEventNotification(
+        name.trim(),
+        selectedEmoji,
+        reminderTime,
+        Number(id),
+      );
+    }
     router.back();
   };
 

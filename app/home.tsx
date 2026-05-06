@@ -44,7 +44,7 @@ export default function HomeScreen() {
       style={styles.card}
       onPress={() =>
         router.push({
-          pathname: "/checklist",
+          pathname: "/checklist" as any,
           params: {
             destinationId: item.id,
             destinationName: item.name,
