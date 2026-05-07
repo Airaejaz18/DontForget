@@ -1,12 +1,16 @@
 import { Stack } from "expo-router";
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { initDatabase } from "../src/database/db";
+import { requestNotificationPermission } from "../src/utils/notifications";
 
 export default function RootLayout() {
   useEffect(() => {
-    initDatabase();
+    if (Platform.OS !== "web") {
+      initDatabase();
+      requestNotificationPermission();
+    }
   }, []);
 
   return (
@@ -25,7 +29,5 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
 });

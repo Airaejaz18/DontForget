@@ -1,7 +1,10 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
+  Image,
   Platform,
   ScrollView,
   StatusBar,
@@ -31,6 +34,8 @@ export default function AddDestinationScreen() {
   const [reminderTime, setReminderTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageType, setImageType] = useState<"emoji" | "custom">("emoji");
   const [error, setError] = useState("");
 
   const formatTime = (date: Date) => {
@@ -39,40 +44,65 @@ export default function AddDestinationScreen() {
     return `${h}:${m}`;
   };
 
+  const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Permission needed", "Please allow access to your gallery!");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+      setImageType("custom");
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       setError("Please enter a destination name!");
       return;
     }
-    //save to database
-    const id = addDestination(
-      name.trim(),
-      "emoji",
-      selectedEmoji,
-      selectedColor.color,
-      selectedColor.bgLight,
-      reminderType,
-      formatTime(reminderTime),
-    );
-    // Schedule notification
-    const hour = reminderTime.getHours();
-    const minute = reminderTime.getMinutes();
+    try {
+      const finalImageValue =
+        imageType === "custom" && imageUri ? imageUri : selectedEmoji;
 
-    if (reminderType === "daily") {
-      await scheduleDailyNotification(
+      const id = addDestination(
         name.trim(),
-        selectedEmoji,
-        hour,
-        minute,
-        Number(id),
+        imageType,
+        finalImageValue,
+        selectedColor.color,
+        selectedColor.bgLight,
+        reminderType,
+        formatTime(reminderTime),
       );
-    } else {
-      await scheduleEventNotification(
-        name.trim(),
-        selectedEmoji,
-        reminderTime,
-        Number(id),
-      );
+
+      const hour = reminderTime.getHours();
+      const minute = reminderTime.getMinutes();
+
+      if (reminderType === "daily") {
+        await scheduleDailyNotification(
+          name.trim(),
+          selectedEmoji,
+          hour,
+          minute,
+          Number(id),
+        );
+      } else {
+        await scheduleEventNotification(
+          name.trim(),
+          selectedEmoji,
+          reminderTime,
+          Number(id),
+        );
+      }
+    } catch (error) {
+      console.log("Notification error:, error");
+      //continue even if notification fails
     }
     router.back();
   };
@@ -80,6 +110,8 @@ export default function AddDestinationScreen() {
   const applyTemplate = (template: any) => {
     setName(template.name);
     setSelectedEmoji(template.emoji);
+    setImageType("emoji");
+    setImageUri(null);
     const matchColor =
       CARD_COLORS.find((c) => c.color === template.color) || CARD_COLORS[0];
     setSelectedColor(matchColor);
@@ -90,24 +122,29 @@ export default function AddDestinationScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>New Destination ✨</Text>
       </View>
+
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Templates */}
+        {/* Templates Button */}
         <TouchableOpacity
           style={styles.templateBtn}
           onPress={() => setShowTemplates(!showTemplates)}
         >
           <Text style={styles.templateBtnText}>✨ Choose from Templates</Text>
         </TouchableOpacity>
+
+        {/* Templates List */}
         {showTemplates && (
           <View style={styles.templatesContainer}>
             <Text style={styles.sectionLabel}>QUICK TEMPLATES</Text>
@@ -133,34 +170,53 @@ export default function AddDestinationScreen() {
           </View>
         )}
 
-        {/* Emoji Picker */}
+        {/* Image Picker */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>CHOOSE EMOJI</Text>
-          <View
-            style={[
-              styles.emojiPreview,
-              { backgroundColor: selectedColor.bgLight },
-            ]}
-          >
-            <Text style={styles.emojiPreviewText}>{selectedEmoji}</Text>
-          </View>
-          <View style={styles.emojiGrid}>
-            {EMOJIS.map((emoji) => (
-              <TouchableOpacity
-                key={emoji}
-                style={[
-                  styles.emojiItem,
-                  selectedEmoji === emoji && styles.emojiItemSelected,
-                ]}
-                onPress={() => setSelectedEmoji(emoji)}
-              >
-                <Text style={styles.emojiText}>{emoji}</Text>
-              </TouchableOpacity>
-            ))}
+          <Text style={styles.sectionLabel}>DESTINATION IMAGE</Text>
+          <View style={styles.imagePickerRow}>
+            {/* Square Image Preview */}
+            <TouchableOpacity
+              style={[
+                styles.imagePreview,
+                { backgroundColor: selectedColor.bgLight },
+              ]}
+              onPress={pickImage}
+            >
+              {imageType === "custom" && imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.previewImage} />
+              ) : (
+                <Text style={styles.emojiPreviewText}>{selectedEmoji}</Text>
+              )}
+              <View style={styles.cameraOverlay}>
+                <Text style={styles.cameraIcon}>📷</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Emoji Grid */}
+            <View style={styles.emojiGridSmall}>
+              {EMOJIS.map((emoji) => (
+                <TouchableOpacity
+                  key={emoji}
+                  style={[
+                    styles.emojiItem,
+                    selectedEmoji === emoji &&
+                      imageType === "emoji" &&
+                      styles.emojiItemSelected,
+                  ]}
+                  onPress={() => {
+                    setSelectedEmoji(emoji);
+                    setImageType("emoji");
+                    setImageUri(null);
+                  }}
+                >
+                  <Text style={styles.emojiText}>{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
 
-        {/* Name */}
+        {/* Destination Name */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>DESTINATION NAME</Text>
           <TextInput
@@ -177,7 +233,7 @@ export default function AddDestinationScreen() {
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
 
-        {/* Color */}
+        {/* Card Color */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>CARD COLOR</Text>
           <View style={styles.colorsRow}>
@@ -201,7 +257,11 @@ export default function AddDestinationScreen() {
           <View style={styles.typeRow}>
             {[
               { label: "⏰ Daily", val: "daily", desc: "Every day" },
-              { label: "📅 Event", val: "event", desc: "One specific date" },
+              {
+                label: "📅 Event",
+                val: "event",
+                desc: "One specific date",
+              },
             ].map((t) => (
               <TouchableOpacity
                 key={t.val}
@@ -232,7 +292,7 @@ export default function AddDestinationScreen() {
           </View>
         </View>
 
-        {/* Time */}
+        {/* Reminder Time */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>REMINDER TIME</Text>
           <TouchableOpacity
@@ -256,7 +316,7 @@ export default function AddDestinationScreen() {
           )}
         </View>
 
-        {/* Save */}
+        {/* Save Button */}
         <TouchableOpacity
           style={styles.saveBtn}
           onPress={handleSave}
@@ -264,6 +324,7 @@ export default function AddDestinationScreen() {
         >
           <Text style={styles.saveBtnText}>Create Destination 🎉</Text>
         </TouchableOpacity>
+
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -296,7 +357,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: COLORS.primary,
   },
-  templateBtnText: { fontSize: 14, fontWeight: "800", color: COLORS.primary },
+  templateBtnText: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: COLORS.primary,
+  },
   templatesContainer: { marginBottom: 16 },
   templateCard: {
     padding: 16,
@@ -315,16 +380,40 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: 10,
   },
-  emojiPreview: {
+  imagePickerRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "flex-start",
+  },
+  imagePreview: {
     width: 90,
     height: 90,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    position: "relative",
+    flexShrink: 0,
   },
+  previewImage: { width: 90, height: 90, borderRadius: 20 },
   emojiPreviewText: { fontSize: 42 },
-  emojiGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  cameraOverlay: {
+    position: "absolute",
+    bottom: 4,
+    right: 4,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cameraIcon: { fontSize: 14 },
+  emojiGridSmall: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
   emojiItem: {
     width: 46,
     height: 46,
@@ -399,7 +488,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   timeIcon: { fontSize: 22 },
-  timeText: { fontSize: 20, fontWeight: "800", color: COLORS.text, flex: 1 },
+  timeText: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: COLORS.text,
+    flex: 1,
+  },
   timeEdit: { fontSize: 12, fontWeight: "600", color: COLORS.textLight },
   saveBtn: {
     padding: 18,

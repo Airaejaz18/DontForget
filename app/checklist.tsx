@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import {
   Alert,
   FlatList,
+  Image,
   StatusBar,
   StyleSheet,
   Text,
@@ -129,7 +130,14 @@ export default function ChecklistScreen() {
               { backgroundColor: "rgba(255,255,255,0.2)" },
             ]}
           >
-            <Text style={styles.headerEmoji}>{destinationEmoji || "🎒"}</Text>
+            {destinationEmoji && String(destinationEmoji).startsWith("file") ? (
+              <Image
+                source={{ uri: String(destinationEmoji) }}
+                style={{ width: 60, height: 60, borderRadius: 18 }}
+              />
+            ) : (
+              <Text style={styles.headerEmoji}>{destinationEmoji || "🎒"}</Text>
+            )}
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.headerName}>{destinationName}</Text>

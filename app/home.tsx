@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import {
   Dimensions,
   FlatList,
+  Image,
   StatusBar,
   StyleSheet,
   Text,
@@ -51,6 +52,7 @@ export default function HomeScreen() {
             destinationColor: item.color,
             destinationBgLight: item.bg_light,
             destinationEmoji: item.image_value,
+            destinationImageType: item.image_type,
             destinationTime: item.reminder_time,
             destinationType: item.reminder_type,
           },
@@ -60,9 +62,13 @@ export default function HomeScreen() {
     >
       {/* Square Image Box */}
       <View style={[styles.cardImage, { backgroundColor: item.bg_light }]}>
-        {item.image_type === "custom" ? (
-          // Will show actual image later
-          <Text style={styles.cardEmoji}>{item.image_value}</Text>
+        {item.image_type === "custom" && item.image_value ? (
+          // show actual image
+          <Image
+            source={{ uri: item.image_value }}
+            style={{ width: 90, height: 90 }}
+            resizeMode="cover"
+          />
         ) : (
           <Text style={styles.cardEmoji}>{item.image_value}</Text>
         )}
