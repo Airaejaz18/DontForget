@@ -1,13 +1,16 @@
+import * as ImagePicker from "expo-image-picker";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
+  Alert,
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import COLORS from "../src/constants/colors";
 import {
@@ -15,6 +18,11 @@ import {
   updateSettings,
   updateUserName,
 } from "../src/database/db";
+import {
+  deleteProfilePhoto,
+  getProfilePhoto,
+  saveProfilePhoto,
+} from "../src/utils/storage";
 
 export default function SettingsScreen() {
   const [userName, setUserName] = useState("");
@@ -23,6 +31,7 @@ export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(1);
   const [vibration, setVibration] = useState(1);
   const [sound, setSound] = useState(1);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -30,7 +39,7 @@ export default function SettingsScreen() {
     }, []),
   );
 
-  const loadSettings = () => {
+  const loadSettings = async () => {
     const user = getUserSettings() as any;
     if (user) {
       setUserName(user.user_name);
@@ -39,8 +48,41 @@ export default function SettingsScreen() {
       setVibration(user.vibration_on);
       setSound(user.sound_on);
     }
+    const photo = await getProfilePhoto();
+    setProfilePhoto(photo);
   };
-
+  const pickProfilePhoto = async () => {
+    Alert.alert("Profile Photo", "What would you like to do?", [
+      {
+        text: "Choose from Gallery",
+        onPress: async () => {
+          const permission =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!permission.granted) return;
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            await saveProfilePhoto(uri);
+            setProfilePhoto(uri);
+          }
+        },
+      },
+      {
+        text: "Remove Photo",
+        style: "destructive",
+        onPress: async () => {
+          await deleteProfilePhoto();
+          setProfilePhoto(null);
+        },
+      },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
   const handleSaveName = () => {
     if (!newName.trim() || newName.trim().length < 2) return;
     updateUserName(newName.trim());
@@ -91,9 +133,22 @@ export default function SettingsScreen() {
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Profile Card */}
         <View style={styles.profileCard}>
-          <View style={styles.profileMom}>
-            <Text style={styles.profileMomEmoji}>👩‍👧</Text>
-          </View>
+          <TouchableOpacity
+            style={styles.profileMom}
+            onPress={pickProfilePhoto}
+          >
+            {profilePhoto ? (
+              <Image
+                source={{ uri: profilePhoto }}
+                style={styles.profilePhoto}
+              />
+            ) : (
+              <Text style={styles.profileMomEmoji}>👩‍👧</Text>
+            )}
+            <View style={styles.profileCameraOverlay}>
+              <Text style={styles.profileCameraIcon}>📷</Text>
+            </View>
+          </TouchableOpacity>
           <View style={styles.profileInfo}>
             {editingName ? (
               <View style={styles.editNameRow}>
@@ -116,9 +171,7 @@ export default function SettingsScreen() {
                 <Text style={styles.profileName}>{userName} ✏️</Text>
               </TouchableOpacity>
             )}
-            <Text style={styles.profileSub}>
-              Your mom is always watching 👀
-            </Text>
+            <Text style={styles.profileSub}>Tap photo to change 📷</Text>
           </View>
         </View>
 
@@ -158,8 +211,8 @@ export default function SettingsScreen() {
 
         {[
           { icon: "📱", label: "Version", value: "1.0.0" },
-          { icon: "👩‍💻", label: "Developer", value: "Your Name" },
-          { icon: "🎓", label: "Project", value: "Final Semester" },
+          { icon: "👩‍💻", label: "Developer", value: "Sumaira Malik" },
+          { icon: "🎓", label: "Project", value: "Semester Project" },
         ].map((item, i) => (
           <View key={i} style={styles.settingRow}>
             <View style={styles.settingLeft}>
@@ -209,6 +262,25 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     gap: 14,
   },
+  profilePhoto: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+  },
+  profileCameraOverlay: {
+    position: "absolute",
+    bottom: -4,
+    right: -4,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileCameraIcon: {
+    fontSize: 12,
+  },
   profileMom: {
     width: 64,
     height: 64,
@@ -216,6 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
   },
   profileMomEmoji: { fontSize: 36 },
   profileInfo: { flex: 1 },

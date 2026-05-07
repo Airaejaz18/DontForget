@@ -12,13 +12,14 @@ import {
 } from "react-native";
 import COLORS from "../src/constants/colors";
 import { getAllDestinations, getUserSettings } from "../src/database/db";
+import { getProfilePhoto } from "../src/utils/storage";
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const [destinations, setDestinations] = useState<any[]>([]);
   const [userName, setUserName] = useState("Friend");
-
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   // Reload data every time screen is focused
   useFocusEffect(
     useCallback(() => {
@@ -26,11 +27,13 @@ export default function HomeScreen() {
     }, []),
   );
 
-  const loadData = () => {
+  const loadData = async () => {
     const user = getUserSettings() as any;
     if (user) setUserName(user.user_name);
     const dests = getAllDestinations() as any[];
     setDestinations(dests);
+    const photo = await getProfilePhoto();
+    setProfilePhoto(photo);
   };
 
   const getGreeting = () => {
@@ -99,7 +102,14 @@ export default function HomeScreen() {
         <Text style={styles.cardMeta}>
           {item.reminder_type === "daily" ? "⏰ Daily" : "📅 Event"}
           {" · "}
-          {item.reminder_time}
+          {(() => {
+            // Convert 24hr to 12hr for display
+            const [h, m] = item.reminder_time.split(":");
+            const hour = parseInt(h);
+            const ampm = hour >= 12 ? "PM" : "AM";
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${m} ${ampm}`;
+          })()}
         </Text>
         <View style={styles.cardTags}>
           <View style={[styles.tag, { backgroundColor: item.bg_light }]}>
@@ -147,9 +157,26 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>{getGreeting()}! ☀️</Text>
-          <Text style={styles.userName}>{userName} 💙</Text>
+        <View style={styles.headerLeft}>
+          {/* Profile Photo */}
+          <TouchableOpacity
+            style={styles.profileCircle}
+            onPress={() => router.push("/settings")}
+          >
+            {profilePhoto ? (
+              <Image
+                source={{ uri: profilePhoto }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <Text style={styles.profileEmoji}>👩‍👧</Text>
+            )}
+          </TouchableOpacity>
+          {/* Greeting */}
+          <View>
+            <Text style={styles.greeting}>{getGreeting()}! ☀️</Text>
+            <Text style={styles.userName}>{userName} 💙</Text>
+          </View>
         </View>
         <TouchableOpacity
           style={styles.settingsBtn}
@@ -220,6 +247,30 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderBottomWidth: 1.5,
     borderBottomColor: COLORS.border,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  profileCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  profileEmoji: {
+    fontSize: 26,
   },
   greeting: {
     fontSize: 12,

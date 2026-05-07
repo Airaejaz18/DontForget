@@ -38,6 +38,8 @@ export default function AddDestinationScreen() {
   const [imageType, setImageType] = useState<"emoji" | "custom">("emoji");
   const [error, setError] = useState("");
   const params = useLocalSearchParams();
+  const [reminderDate, setReminderDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const isEditMode = params.editMode === "true";
 
   useEffect(() => {
@@ -66,6 +68,25 @@ export default function AddDestinationScreen() {
     }
   }, []);
   const formatTime = (date: Date) => {
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:${minutes} ${ampm}`;
+  };
+
+  const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    };
+    return date.toLocaleDateString("en-US", options);
+  };
+
+  const formatTimeFor24 = (date: Date) => {
     const h = date.getHours().toString().padStart(2, "0");
     const m = date.getMinutes().toString().padStart(2, "0");
     return `${h}:${m}`;
@@ -107,7 +128,7 @@ export default function AddDestinationScreen() {
           selectedColor.color,
           selectedColor.bgLight,
           reminderType,
-          formatTime(reminderTime),
+          formatTimeFor24(reminderTime),
         );
       } else {
         // CREATE new destination
@@ -118,7 +139,7 @@ export default function AddDestinationScreen() {
           selectedColor.color,
           selectedColor.bgLight,
           reminderType,
-          formatTime(reminderTime),
+          formatTimeFor24(reminderTime),
         );
 
         const hour = reminderTime.getHours();
@@ -133,17 +154,20 @@ export default function AddDestinationScreen() {
             Number(id),
           );
         } else {
+          // Combine date and time for event
+          const eventDateTime = new Date(reminderDate);
+          eventDateTime.setHours(reminderTime.getHours());
+          eventDateTime.setMinutes(reminderTime.getMinutes());
           await scheduleEventNotification(
             name.trim(),
             selectedEmoji,
-            reminderTime,
+            eventDateTime,
             Number(id),
           );
         }
       }
     } catch (error) {
-      console.log("Notification error:, error");
-      //continue even if notification fails
+      console.log("Save error:, error");
     }
     router.back();
   };
@@ -334,7 +358,6 @@ export default function AddDestinationScreen() {
             ))}
           </View>
         </View>
-
         {/* Reminder Time */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>REMINDER TIME</Text>
@@ -350,7 +373,7 @@ export default function AddDestinationScreen() {
             <DateTimePicker
               value={reminderTime}
               mode="time"
-              is24Hour={true}
+              is24Hour={false}
               onChange={(event, date) => {
                 setShowTimePicker(Platform.OS === "ios");
                 if (date) setReminderTime(date);
@@ -358,6 +381,32 @@ export default function AddDestinationScreen() {
             />
           )}
         </View>
+
+        {/* Date Picker — only for Event type */}
+        {reminderType === "event" && (
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>EVENT DATE</Text>
+            <TouchableOpacity
+              style={styles.timeBtn}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text style={styles.timeIcon}>📅</Text>
+              <Text style={styles.timeText}>{formatDate(reminderDate)}</Text>
+              <Text style={styles.timeEdit}>Tap to change</Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={reminderDate}
+                mode="date"
+                minimumDate={new Date()}
+                onChange={(event, date) => {
+                  setShowDatePicker(Platform.OS === "ios");
+                  if (date) setReminderDate(date);
+                }}
+              />
+            )}
+          </View>
+        )}
 
         {/* Save Button */}
         <TouchableOpacity
