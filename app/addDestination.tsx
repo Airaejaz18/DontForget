@@ -1,7 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -20,7 +20,7 @@ import {
   DESTINATION_TEMPLATES,
   EMOJIS,
 } from "../src/constants/data";
-import { addDestination } from "../src/database/db";
+import { addDestination, updateDestination } from "../src/database/db";
 import {
   scheduleDailyNotification,
   scheduleEventNotification,
@@ -37,7 +37,34 @@ export default function AddDestinationScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageType, setImageType] = useState<"emoji" | "custom">("emoji");
   const [error, setError] = useState("");
+  const params = useLocalSearchParams();
+  const isEditMode = params.editMode === "true";
 
+  useEffect(() => {
+    if (isEditMode) {
+      setName(String(params.destinationName || ""));
+      setSelectedEmoji(String(params.destinationEmoji || "🎒"));
+      setReminderType((params.destinationType as "daily" | "event") || "daily");
+      // Load color
+      const existingColor =
+        CARD_COLORS.find((c) => c.color === params.destinationColor) ||
+        CARD_COLORS[0];
+      setSelectedColor(existingColor);
+      // Load image
+      if (params.destinationImageType === "custom") {
+        setImageType("custom");
+        setImageUri(String(params.destinationEmoji || ""));
+      }
+      // Load time
+      if (params.destinationTime) {
+        const [hours, minutes] = String(params.destinationTime).split(":");
+        const date = new Date();
+        date.setHours(parseInt(hours));
+        date.setMinutes(parseInt(minutes));
+        setReminderTime(date);
+      }
+    }
+  }, []);
   const formatTime = (date: Date) => {
     const h = date.getHours().toString().padStart(2, "0");
     const m = date.getMinutes().toString().padStart(2, "0");
@@ -70,35 +97,49 @@ export default function AddDestinationScreen() {
     try {
       const finalImageValue =
         imageType === "custom" && imageUri ? imageUri : selectedEmoji;
-
-      const id = addDestination(
-        name.trim(),
-        imageType,
-        finalImageValue,
-        selectedColor.color,
-        selectedColor.bgLight,
-        reminderType,
-        formatTime(reminderTime),
-      );
-
-      const hour = reminderTime.getHours();
-      const minute = reminderTime.getMinutes();
-
-      if (reminderType === "daily") {
-        await scheduleDailyNotification(
+      if (isEditMode) {
+        // UPDATE existing destination
+        updateDestination(
+          Number(params.destinationId),
           name.trim(),
-          selectedEmoji,
-          hour,
-          minute,
-          Number(id),
+          imageType,
+          finalImageValue,
+          selectedColor.color,
+          selectedColor.bgLight,
+          reminderType,
+          formatTime(reminderTime),
         );
       } else {
-        await scheduleEventNotification(
+        // CREATE new destination
+        const id = addDestination(
           name.trim(),
-          selectedEmoji,
-          reminderTime,
-          Number(id),
+          imageType,
+          finalImageValue,
+          selectedColor.color,
+          selectedColor.bgLight,
+          reminderType,
+          formatTime(reminderTime),
         );
+
+        const hour = reminderTime.getHours();
+        const minute = reminderTime.getMinutes();
+
+        if (reminderType === "daily") {
+          await scheduleDailyNotification(
+            name.trim(),
+            selectedEmoji,
+            hour,
+            minute,
+            Number(id),
+          );
+        } else {
+          await scheduleEventNotification(
+            name.trim(),
+            selectedEmoji,
+            reminderTime,
+            Number(id),
+          );
+        }
       }
     } catch (error) {
       console.log("Notification error:, error");
@@ -128,7 +169,9 @@ export default function AddDestinationScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>New Destination ✨</Text>
+        <Text style={styles.headerTitle}>
+          {isEditMode ? "Edit Destination" : "New Destination ✨"}
+        </Text>
       </View>
 
       <ScrollView
@@ -322,7 +365,9 @@ export default function AddDestinationScreen() {
           onPress={handleSave}
           activeOpacity={0.85}
         >
-          <Text style={styles.saveBtnText}>Create Destination 🎉</Text>
+          <Text style={styles.saveBtnText}>
+            {isEditMode ? "Save Changes ✅" : "Create Destination 🎉"}
+          </Text>
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />

@@ -58,7 +58,24 @@ export default function HomeScreen() {
           },
         })
       }
+      onLongPress={() =>
+        router.push({
+          pathname: "/addDestination",
+          params: {
+            editMode: "true",
+            destinationId: item.id,
+            destinationName: item.name,
+            destinationColor: item.color,
+            destinationBgLight: item.bg_light,
+            destinationEmoji: item.image_value,
+            destinationImageType: item.image_type,
+            destinationTime: item.reminder_time,
+            destinationType: item.reminder_type,
+          },
+        })
+      }
       activeOpacity={0.85}
+      delayLongPress={600}
     >
       {/* Square Image Box */}
       <View style={[styles.cardImage, { backgroundColor: item.bg_light }]}>
