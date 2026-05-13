@@ -239,7 +239,7 @@ export default function ChecklistScreen() {
                 style={styles.addItemBtn}
                 onPress={() => setShowAddItem(true)}
               >
-                <Text style={styles.addItemBtnText}>➕ Add Item</Text>
+                <Text style={styles.addItemBtnText}>➕</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -266,7 +266,7 @@ export default function ChecklistScreen() {
           }
           activeOpacity={0.85}
         >
-          <Text style={styles.momModeBtnText}>👩‍👧 Start Mom Mode</Text>
+          <Text style={styles.momModeBtnText}>Start Mom Mode</Text>
         </TouchableOpacity>
       )}
     </View>

@@ -121,7 +121,7 @@ export default function MomModeScreen() {
       case "worried":
         return "😟";
       default:
-        return "👩‍👧";
+        return "🧕🏻";
     }
   };
 
@@ -176,7 +176,7 @@ export default function MomModeScreen() {
             style={styles.homeBtn}
             onPress={() => router.push("/home")}
           >
-            <Text style={styles.homeBtnText}>🏠 Back Home</Text>
+            <Text style={styles.homeBtnText}>Back Home</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -202,7 +202,7 @@ export default function MomModeScreen() {
           )}
           {missedItems.length > 0 && (
             <View style={[styles.summaryCard, styles.summaryCardMissed]}>
-              <Text style={styles.summaryCardTitle}>❌ NOT PACKED</Text>
+              <Text style={styles.summaryCardTitle}>NOT PACKED</Text>
               {missedItems.map((item) => (
                 <Text
                   key={item.id}
@@ -236,7 +236,7 @@ export default function MomModeScreen() {
                 setBubbleText(`Did you pack your ${items[0]?.item_name}?`);
               }}
             >
-              <Text style={styles.packBtnText}>🎒 Go Pack Them!</Text>
+              <Text style={styles.packBtnText}>Go Pack Them!</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -289,23 +289,23 @@ export default function MomModeScreen() {
             <View style={styles.buttonsContainer}>
               <TouchableOpacity style={styles.yesBtn} onPress={handleYes}>
                 <Text style={[styles.yesBtnText, { color: bgColor }]}>
-                  ✅ Okay, I packed it!
+                  Okay, I packed it!
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleSkipEssential}>
                 <Text style={styles.skipEssentialText}>
-                  ⏭️ Skip anyway (not recommended)
+                  ⏭ Skip anyway (not recommended)
                 </Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.buttonsRow}>
               <TouchableOpacity style={styles.notYetBtn} onPress={handleNotYet}>
-                <Text style={styles.notYetBtnText}>❌ Not Yet</Text>
+                <Text style={styles.notYetBtnText}>Not Yet</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.yesBtn} onPress={handleYes}>
                 <Text style={[styles.yesBtnText, { color: bgColor }]}>
-                  ✅ Yes!
+                  Yes!
                 </Text>
               </TouchableOpacity>
             </View>

@@ -143,7 +143,7 @@ export default function SettingsScreen() {
                 style={styles.profilePhoto}
               />
             ) : (
-              <Text style={styles.profileMomEmoji}>👩‍👧</Text>
+              <Text style={styles.profileMomEmoji}>😊</Text>
             )}
             <View style={styles.profileCameraOverlay}>
               <Text style={styles.profileCameraIcon}>📷</Text>
@@ -168,7 +168,7 @@ export default function SettingsScreen() {
               </View>
             ) : (
               <TouchableOpacity onPress={() => setEditingName(true)}>
-                <Text style={styles.profileName}>{userName} ✏️</Text>
+                <Text style={styles.profileName}>{userName}</Text>
               </TouchableOpacity>
             )}
             <Text style={styles.profileSub}>Tap photo to change 📷</Text>
