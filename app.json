@@ -17,7 +17,10 @@
         "backgroundColor": "#6B8FFF"
       },
       "package": "com.sumairamalik.dontforget",
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -36,6 +39,12 @@
         }
       ]
     ],
-    "scheme": "dontforget"
+    "scheme": "dontforget",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3bdd58e1-34d1-4368-8111-fb8c2bcbd2cd"
+      }
+    }
   }
 }
