@@ -108,6 +108,28 @@ Download APK
 Download the latest APK from the Releases section.
 
 Screenshoots:
+## 📸 Screenshots
+
+<table>
+  <tr>
+    <td><img src="assets/images/screenshots/home screen.jpeg" width="200"/></td>
+    <td><img src="assets/images/screenshots/Create destination screen.jpeg" width="200"/></td>
+    <td><img src="assets/images/screenshots/settings screen.jpeg" width="200"/></td>
+  </tr>
+  <tr>
+    <td>Home Screen</td>
+    <td>Add destination Screen</td>
+    <td>Settings Screen</td>
+  </tr>
+  <tr>
+    <td><img src="assets/images/screenshots/checklist screen.jpeg" width="200"/></td>
+    <td><img src="assets/images/screenshots/mommode screen.jpeg" width="200"/></td>
+  </tr>
+  <tr>
+    <td>Checklist Screen</td>
+    <td>AMommode Screen</td>
+  </tr>
+</table>
 
 
 

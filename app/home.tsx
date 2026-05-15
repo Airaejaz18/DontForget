@@ -103,7 +103,7 @@ export default function HomeScreen() {
           {item.reminder_type === "daily" ? "⏰ Daily" : "📅 Event"}
           {" · "}
           {(() => {
-            // Convert 24hr to 12hr for display
+            // Time for display
             const [h, m] = item.reminder_time.split(":");
             const hour = parseInt(h);
             const ampm = hour >= 12 ? "PM" : "AM";
