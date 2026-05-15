@@ -107,9 +107,7 @@ npx expo start
 Download APK
 Download the latest APK from the Releases section.
 
-Screenshoots:
-## 📸 Screenshots
-
+Screenshots:
 <table>
   <tr>
     <td><img src="assets/images/screenshots/home screen.jpeg" width="200"/></td>
