@@ -91,7 +91,7 @@ Installation
 # Clone the repository
 git clone https://github.com/Sumaira-Malik18/DontForget.git
 
-# Go into project folder
+## Go into project folder
 cd DontForget
 
 # Install dependencies
@@ -104,34 +104,14 @@ npx expo start
 2. Scan QR code shown in terminal
 3. App opens on your phone!
 
-Download APK
+## Download APK
 Download the latest APK from the Releases section.
 
-Screenshots:
-<table>
-  <tr>
-    <td><img src="assets/images/screenshots/home screen.jpeg" width="200"/></td>
-    <td><img src="assets/images/screenshots/Create destination screen.jpeg" width="200"/></td>
-    <td><img src="assets/images/screenshots/settings screen.jpeg" width="200"/></td>
-  </tr>
-  <tr>
-    <td>Home Screen</td>
-    <td>Add destination Screen</td>
-    <td>Settings Screen</td>
-  </tr>
-  <tr>
-    <td><img src="assets/images/screenshots/checklist screen.jpeg" width="200"/></td>
-    <td><img src="assets/images/screenshots/mommode screen.jpeg" width="200"/></td>
-  </tr>
-  <tr>
-    <td>Checklist Screen</td>
-    <td>AMommode Screen</td>
-  </tr>
-</table>
+## Screenshots:
+![App Screens](assets\Screenshots\splash screen.jpeg)
 
 
-
-Developer
+### Developer
 Sumaira Malik
 Semester Project — 2026
  License

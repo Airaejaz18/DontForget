@@ -57,7 +57,7 @@ export default function OnboardingScreen() {
         <View style={styles.bubbleWrapper}>
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>
-              Hi! I'm your digital mom 💕{"\n"}
+              Hi! I'm your digital mom...{"\n"}
               I'll remind you of everything!
             </Text>
           </View>

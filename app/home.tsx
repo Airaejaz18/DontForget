@@ -169,7 +169,7 @@ export default function HomeScreen() {
                 style={styles.profileImage}
               />
             ) : (
-              <Text style={styles.profileEmoji}>👩‍👧</Text>
+              <Text style={styles.profileEmoji}>😊</Text>
             )}
           </TouchableOpacity>
           {/* Greeting */}
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: "absolute",
-    bottom: 24,
+    bottom: 40,
     left: 20,
     right: 20,
     padding: 18,

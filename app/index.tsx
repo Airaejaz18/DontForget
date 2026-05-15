@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -26,7 +27,10 @@ export default function SplashScreen() {
     <View style={styles.container}>
       <View style={styles.blob1} />
       <View style={styles.blob2} />
-      <Text style={styles.momEmoji}>👩‍👧</Text>
+      <Image
+        source={require("../assets/images/icon.png")}
+        style={styles.iconImage}
+      />
       <Text style={styles.appName}>Don't Forget!</Text>
       <Text style={styles.tagline}>your digital mom 💕</Text>
       <View style={styles.dotsContainer}>
@@ -64,9 +68,11 @@ const styles = StyleSheet.create({
     bottom: 80,
     right: -40,
   },
-  momEmoji: {
-    fontSize: 90,
-    marginBottom: 20,
+  iconImage: {
+    width: 130,
+    height: 130,
+    borderRadius: 20,
+    marginBottom: 10,
   },
   appName: {
     fontSize: 36,

@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   addItemBtnText: { fontSize: 14, fontWeight: "700", color: COLORS.textLight },
   momModeBtn: {
     position: "absolute",
-    bottom: 24,
+    bottom: 40,
     left: 20,
     right: 20,
     padding: 18,

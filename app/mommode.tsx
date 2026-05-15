@@ -42,7 +42,7 @@ export default function MomModeScreen() {
     }
   }, []);
 
-  const triggerVibration = () => Vibration.vibrate(400);
+  const triggerVibration = () => Vibration.vibrate([0, 400, 200, 400]);
 
   const handleNotYet = () => {
     const current = items[currentIdx];
