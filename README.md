@@ -83,37 +83,54 @@ checklist_items (id, destination_id, item_name, is_essential)
 -- Session logs
 session_logs (id, destination_id, date, total_items, packed_count)
 
-How to Run
-Prerequisites
+```
+
+---
+
+## How to Run
+
+--Prerequisites
 Node.js v18+
 Expo Go app on Android phone
 Installation
-# Clone the repository
+
+### Clone the repository
+
 git clone https://github.com/Sumaira-Malik18/DontForget.git
 
-## Go into project folder
+### Go into project folder
+
 cd DontForget
 
-# Install dependencies
+### Install dependencies
+
 npm install
 
-# Start the app
+### Start the app
+
 npx expo start
 
 1. Install Expo Go from Play Store
 2. Scan QR code shown in terminal
 3. App opens on your phone!
 
-## Download APK
+## 📲 Download APK
+
 Download the latest APK from the Releases section.
 
-## Screenshots:
-![App Screens](assets\Screenshots\splash screen.jpeg)
+---
 
+## App Screens UI
 
-### Developer
+![App Screens](./assets/Screenshots/App%20Layout.png)
+
+---
+
+## Developer
+
 Sumaira Malik
-Semester Project — 2026
- License
+Final Semester Project — 2026
+📄 License
 This project is built for educational purposes as a semester project.
-```
+
+---
