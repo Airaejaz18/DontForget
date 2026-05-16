@@ -116,7 +116,15 @@ npx expo start
 
 ## 📲 Download APK
 
-Download the latest APK from the Releases section.
+Download the latest APK from the link below and install on any Android device:
+https://github.com/Sumaira-Malik18/DontForget/releases/download/v1.0.0/application-b2b295c8-4626-4ccc-b949-31740aaaa268.apk
+
+### Installation Steps
+1. Download APK file from link above
+2. Transfer to your Android phone
+3. Open APK file on phone
+4. Allow "Install from unknown sources" if asked
+5. Install
 
 ---
 
